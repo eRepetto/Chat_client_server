@@ -13,6 +13,15 @@ public class ChatRunnable <T extends JFrame & Accessible> implements Runnable {
 	final ObjectOutputStream outputStream;
 	final JTextArea display;	
 	
+	public ChatRunnable (T ui, ConnectionWrapper connection){
+		
+		this.ui = ui;
+		this.socket = connection.getSocket();
+		this.inputStream = connection.getInputStream(); // i am not sure about this yet
+		this.outputStream = connection.getOutputStream();
+	}
+	
+	
 	
 	@Override
 	public void run() {
