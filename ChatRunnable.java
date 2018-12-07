@@ -16,8 +16,6 @@ public class ChatRunnable<T extends JFrame & Accessible> implements Runnable {
 	private final ObjectOutputStream outputStream;
 	private final JTextArea display;
 
-	ChatProtocolConstants chatProtocol = new ChatProtocolConstants(); // not sure about this yet
-
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, hh:mm a");
 	LocalDateTime localTime;
 
@@ -48,11 +46,13 @@ public class ChatRunnable<T extends JFrame & Accessible> implements Runnable {
 			else
 				break;
 
-			if (strin.trim().equals(chatProtocol.CHAT_TERMINATOR)) {
+			if (strin.trim().equals(ChatProtocolConstants.CHAT_TERMINATOR)) {
 				final String terminate;
 				try {
 					localTime = LocalDateTime.now();/* gets the current time */
-					terminate = chatProtocol.DISPLACMENT + formatter.format(localTime) + chatProtocol.LINE_TERMINATOR
+					terminate = ChatProtocolConstants.DISPLACMENT + 
+							formatter.format(localTime) + 
+							ChatProtocolConstants.LINE_TERMINATOR
 							+ strin;
 					display.append(terminate);
 					break;
@@ -62,7 +62,9 @@ public class ChatRunnable<T extends JFrame & Accessible> implements Runnable {
 			} else {
 				localTime = LocalDateTime.now();/* gets the current time */
 				final String append;
-				append = chatProtocol.DISPLACMENT + formatter.format(localTime) + chatProtocol.LINE_TERMINATOR + strin;
+				append = ChatProtocolConstants.DISPLACMENT + 
+						formatter.format(localTime) + 
+						ChatProtocolConstants.LINE_TERMINATOR + strin;
 				display.append(append);
 			}
 
@@ -70,7 +72,9 @@ public class ChatRunnable<T extends JFrame & Accessible> implements Runnable {
 				/*not sure about this*/
 				try {
 					outputStream.writeObject(
-							chatProtocol.DISPLACMENT + chatProtocol.CHAT_TERMINATOR + chatProtocol.LINE_TERMINATOR);
+							ChatProtocolConstants.DISPLACMENT + 
+							ChatProtocolConstants.CHAT_TERMINATOR + 
+							ChatProtocolConstants.LINE_TERMINATOR);
 				} catch (IOException e) {
 
 					e.printStackTrace();

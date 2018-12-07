@@ -22,13 +22,12 @@ import javax.swing.border.TitledBorder;
 public class ServerChatUI extends JFrame implements Accessible {
 	private static final long serialVersionUID = 1L;
 	
-	JButton send;
-	JTextField message;
-	JButton sendButton;
-	JTextArea display;
-	ObjectOutputStream outputStream;
-	Socket socket;
-	ConnectionWrapper connection;
+	private JButton sendButton;
+	private JTextField message;
+	private JTextArea display;
+	private ObjectOutputStream outputStream;
+	private Socket socket;
+	private ConnectionWrapper connection;
 
 	public ServerChatUI(Socket socket) {
 		this.socket = socket;
@@ -52,17 +51,18 @@ public class ServerChatUI extends JFrame implements Accessible {
 		nestedMessage.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		nestedMessage.setLayout(new BorderLayout(5, 5));
 
-		JTextField textMessage = new JTextField("Type message");
+		message = new JTextField("Type message");
 
-		send = new JButton("Send");
-		send.setMnemonic('s');
-		send.setEnabled(true);
-		send.addActionListener(controller);
-		send.setPreferredSize(new Dimension(100, 0));
-		getRootPane().setDefaultButton(send);
+		sendButton = new JButton("Send");
+		sendButton.setMnemonic('s');
+		sendButton.setEnabled(true);
+		sendButton.addActionListener(controller);
+		sendButton.setActionCommand("send");
+		sendButton.setPreferredSize(new Dimension(100, 0));
+		getRootPane().setDefaultButton(sendButton);
 
-		nestedMessage.add(textMessage, BorderLayout.CENTER);
-		nestedMessage.add(send, BorderLayout.EAST);
+		nestedMessage.add(message, BorderLayout.CENTER);
+		nestedMessage.add(sendButton, BorderLayout.EAST);
 
 		messagePane.add(nestedMessage);
 
@@ -72,11 +72,11 @@ public class ServerChatUI extends JFrame implements Accessible {
 				TitledBorder.CENTER, TitledBorder.CENTER));
 		chat.setLayout(new BorderLayout(5, 5));
 
-		JTextArea textChat = new JTextArea(30, 45);
+		display = new JTextArea(30, 45);
 		// chat.add(textChat, BorderLayout.CENTER);
-		textChat.setEditable(false);
+		display.setEditable(false);
 
-		JScrollPane scroll = new JScrollPane(textChat);
+		JScrollPane scroll = new JScrollPane(display);
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
 		scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -117,30 +117,56 @@ public class ServerChatUI extends JFrame implements Accessible {
 	private class WindowsController extends WindowAdapter {
 		@Override
 		public void windowClosing(WindowEvent e) {
-			
+
 			System.out.println("ServerUI Window Closing");
-			dispose();
-			System.exit(0);
+
+				try {
+					outputStream.writeObject(ChatProtocolConstants.DISPLACMENT + ChatProtocolConstants.CHAT_TERMINATOR
+							+ChatProtocolConstants.LINE_TERMINATOR);
+				} catch (IOException e1) {
+	
+					e1.printStackTrace();
+				} finally {
+
+				dispose();
+				System.out.println("Closing chat!");
+			}
+		 
+		 try {
+		 connection.closeConnection();
+		 } catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		 finally {
+			 dispose();
+			 System.out.println("Chat closed");
+		 }
+		}
+
+		public void WindowClosed() {
+
+			System.out.println("Server UI Closed");
 		}
 	}
 
 	private class Controller implements ActionListener {
 		@Override
-		public void actionPerformed(ActionEvent event) {
-
-			send();
+		public void actionPerformed(ActionEvent av) {
+			String event = av.getActionCommand();
+			if (event.equals("send"))
+				send();
 		}
 
 		private void send() {
 			String sendMessage = message.getText();
-			display.append(sendMessage + "\n");
-
-			/*
-			 * and then uses the outputStream to write the following string object:
-			 * ChatProtocolConstants.DISPLACMENT + sendMessage
-			 * +ChatProtocolConstants.LINE_TERMINATOR
-			 */
-
+			getDisplay().append(sendMessage + ChatProtocolConstants.LINE_TERMINATOR);
+			try {
+				outputStream.writeObject(ChatProtocolConstants.DISPLACMENT + 
+						sendMessage + ChatProtocolConstants.LINE_TERMINATOR);
+			} catch (IOException e) {
+				getDisplay().setText(e.toString());
+			}
 		}
 	}
 

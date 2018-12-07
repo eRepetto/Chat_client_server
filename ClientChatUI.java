@@ -32,30 +32,32 @@ import java.net.UnknownHostException;
 public class ClientChatUI extends JFrame implements Accessible {
 	private static final long serialVersionUID = 1L;
 	
-	JTextField message;
-	JButton sendButton;
-	JTextArea display;
-	ObjectOutputStream outputStream;
-	Socket socket;
-	ConnectionWrapper connection;
+	/* Text field for MESSAGE panel */
+	private JTextField message;
+	
+	/* Send button for message in MESSAGE panel */
+	private JButton sendButton;
+	
+	/* Text area for the CHAT DISPLAY panel */
+	private JTextArea display;
+	
+	/* Output stream */
+	private ObjectOutputStream outputStream;
+	
+	/* Socket object */
+	private Socket socket;
+	
+	/* ConnectionWrapper object to establish streams */
+	private ConnectionWrapper connection;
 	
 	/* Connect button for the Port combo box */
 	JButton portConnectBtn;
 	
-	/* Send button for message in MESSAGE panel */
-	JButton sendMessageBtn;
-	
 	/* Text field for Host selection */
 	JTextField hostTextField;
 	
-	/* Text field for MESSAGE panel */
-	JTextField messageTextField;
-	
 	/* Combo box for Port selection */
 	JComboBox<String> portComboBox;
-	
-	/* Text area for the CHAT DISPLAY panel */
-	JTextArea chatTextArea;
 	
 
 	/**
@@ -69,21 +71,32 @@ public class ClientChatUI extends JFrame implements Accessible {
 	}
 	
 	/**
-	 * No implementation yet. 
+	 * Handles the closing of the window. 
 	 * 
 	 * @author Gabriel Richard
+	 * @version 1.0
+	 * @see CalculatorViewController
+	 * @since 1.8.0_181-b13 
 	 */
 	private class WindowController extends WindowAdapter {
 		
-		public void windowClosing(WindowEvent e) {
+		public void windowClosing(WindowEvent we) {
+			try {
+				outputStream.writeObject(ChatProtocolConstants.CHAT_TERMINATOR);
+			} catch (IOException e) {
+				System.exit(0);
+			}
 			System.exit(0);
 		}
 	}
 	
 	/**
-	 * No implementation yet. 
+	 * Handles events sent by the connect and send buttons. 
 	 * 
 	 * @author Gabriel Richard
+	 * @version 1.0
+	 * @see CalculatorViewController
+	 * @since 1.8.0_181-b13 
 	 */
 	private class Controller implements ActionListener {
 		
@@ -94,37 +107,45 @@ public class ClientChatUI extends JFrame implements Accessible {
 			int port;
 			
 			String event = av.getActionCommand();
-			if (event.equals("connect")) 
-				host = hostTextField.getText();;
 			
+			// Check if Connect button was pressed
+			if (event.equals("connect")) {
+				host = hostTextField.getText();
 			
-			port = (int) portComboBox.getSelectedItem();
-			connected = connect(host, port);
-			if (connected) {
-				portConnectBtn.setEnabled(false);
-				portConnectBtn.setBackground(Color.BLUE);
-				sendMessageBtn.setEnabled(true);
-				messageTextField.requestFocus();
-				
-				Runnable runnable = new ChatRunnable<ClientChatUI>(ClientChatUI.this, connection);
-				
-				try {
-					Thread thread = new Thread(runnable);
-					thread.start();
-				} catch (Exception e) {
-					chatTextArea.setText(e.toString());
+				port = (Integer) portComboBox.getSelectedItem();
+				connected = connect(host, port);
+				// Check if connection was successful
+				if (connected) {
+					portConnectBtn.setEnabled(false);
+					portConnectBtn.setBackground(Color.BLUE);
+					sendButton.setEnabled(true);
+					message.requestFocus();
+					
+					Runnable runnable = new ChatRunnable<ClientChatUI>(ClientChatUI.this, connection);
+					
+					try {
+						Thread thread = new Thread(runnable);
+						thread.start();
+					} catch (Exception e) {
+						getDisplay().setText(e.toString());
+						return;
+					}
+				} // End inner if statement
+				else
 					return;
-				}
-			} 
-			else
-				return;
+			} // End outer if statement
 			
-			if (event.equals("send")) {
+			if (event.equals("send"))
 				send();
-			}
-				
 		}
 		
+		/**
+		 * Connects to an output stream. 
+		 * 
+		 * @param host		The specified host
+		 * @param port		The specified port
+		 * @return			True if the connection is successful; false otherwise
+		 */
 		private boolean connect(String host, int port) {
 			Socket s = new Socket();
 			
@@ -139,7 +160,7 @@ public class ClientChatUI extends JFrame implements Accessible {
 					if (!socket.getTcpNoDelay())
 						socket.setTcpNoDelay(true);
 					
-					chatTextArea.append(socket.toString());
+					getDisplay().append(socket.toString());
 					connection = new ConnectionWrapper(socket);
 					connection.createStreams();
 					outputStream = connection.getOutputStream();
@@ -147,23 +168,23 @@ public class ClientChatUI extends JFrame implements Accessible {
 					return true;
 				}
 			} catch (UnknownHostException e) {
-				chatTextArea.setText(e.toString());
+				getDisplay().setText(e.toString());
 			} catch (IOException e) {
-				chatTextArea.setText(e.toString());
+				getDisplay().setText(e.toString());
 			} 
 			
 			return false;
 		}
 		
 		private void send() {
-			String sendMessage = messageTextField.getText();
-			chatTextArea.append(sendMessage + ChatProtocolConstants.LINE_TERMINATOR);
+			String sendMessage = message.getText();
+			getDisplay().append(sendMessage + ChatProtocolConstants.LINE_TERMINATOR);
 			try {
 				outputStream.writeObject(ChatProtocolConstants.DISPLACMENT + 
 						sendMessage + ChatProtocolConstants.LINE_TERMINATOR);
 			} catch (IOException e) {
 				enableConnectButton();
-				chatTextArea.setText(e.toString());
+				getDisplay().setText(e.toString());
 			}
 		}
 	}
@@ -268,24 +289,24 @@ public class ClientChatUI extends JFrame implements Accessible {
 		
 		
 		/* MESSAGE components */
-		messageTextField = new JTextField("Type message", 40);
-		messageTextField.setBackground(Color.WHITE);
+		message = new JTextField("Type message", 40);
+		message.setBackground(Color.WHITE);
 		
-		sendMessageBtn = new JButton("Send");
-		sendMessageBtn.setMnemonic('S');
-		sendMessageBtn.setEnabled(false);
-		sendMessageBtn.addActionListener(controller);
-		sendMessageBtn.setPreferredSize(new Dimension(90, 19));
-		sendMessageBtn.setActionCommand("send");
+		sendButton = new JButton("Send");
+		sendButton.setMnemonic('S');
+		sendButton.setEnabled(false);
+		sendButton.addActionListener(controller);
+		sendButton.setPreferredSize(new Dimension(90, 19));
+		sendButton.setActionCommand("send");
 		
-		messagePanel.add(messageTextField);
-		messagePanel.add(sendMessageBtn);
+		messagePanel.add(message);
+		messagePanel.add(sendButton);
 		
 		
 		/* CHAT DISPLAY components */
-		chatTextArea = new JTextArea(30, 45);
-		chatTextArea.setEditable(false);
-		scroll = new JScrollPane(chatTextArea, 
+		display = new JTextArea(30, 45);
+		display.setEditable(false);
+		scroll = new JScrollPane(display, 
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
@@ -336,8 +357,7 @@ public class ClientChatUI extends JFrame implements Accessible {
 
 	@Override
 	public JTextArea getDisplay() {
-		// TODO Auto-generated method stub
-		return null;
+		return display;
 	}
 
 	@Override
@@ -355,7 +375,7 @@ public class ClientChatUI extends JFrame implements Accessible {
 	private void enableConnectButton() {
 		portConnectBtn.setEnabled(true);
 		portConnectBtn.setBackground(Color.RED);
-		sendMessageBtn.setEnabled(false);
+		sendButton.setEnabled(false);
 		hostTextField.requestFocus();
 	}
 }

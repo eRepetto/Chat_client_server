@@ -1,11 +1,7 @@
 
 public class ChatProtocolConstants {
-
-	
-	final static String CHAT_TERMINATOR = "bye";
-	final static String DISPLACMENT = "\t\t";
-	final static String LINE_TERMINATOR = "\r\n";
-	final  static String HANDSHAKE = "hello";
-
-	
+	public static String CHAT_TERMINATOR = "bye";
+	public static String DISPLACMENT = "\t";
+	public static String LINE_TERMINATOR = "\r\n";
+	public static String HANDSHAKE = "hello";
 }

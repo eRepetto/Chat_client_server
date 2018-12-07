@@ -13,11 +13,13 @@ public class Server {
 	private static ServerSocket server;
 
 	public static void main(String[] args) {
-
 		int friend = 0;
 		int port = 65535;
-		if(!(args == null))
+		
+		if(args.length != 0)
 			port = Integer.parseInt(args[0]);	
+		else
+			System.out.println("Using default port: " + port);
 			
 		try {
 			server = new ServerSocket(port);
@@ -32,9 +34,8 @@ public class Server {
 				final String title = "YourName's Friend " + friend;
 				launchClient(socket, title);
 			}
-
 		} catch (IOException e) {
-
+			e.printStackTrace();
 		}
 
 	}
