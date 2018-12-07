@@ -22,7 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
 
-public class ServerChatUi extends JFrame implements Accessible {
+public class ServerChatUI extends JFrame implements Accessible {
 
 	JButton send;
 	JTextField message;
@@ -32,7 +32,7 @@ public class ServerChatUi extends JFrame implements Accessible {
 	Socket socket;
 	ConnectionWrapper connection;
 
-	public ServerChatUi(Socket socket) {
+	public ServerChatUI(Socket socket) {
 		this.socket = socket;
 		setFrame(createUI());
 		runClient();
@@ -92,10 +92,20 @@ public class ServerChatUi extends JFrame implements Accessible {
 		return panel;
 	}
 
+	/**
+	 * Creates input/output streams and starts a new thread.
+	 */
 	private void runClient() {
-
-		connection = new ConnectionWrapper(socket); // i am not sure about this
-
+		connection = new ConnectionWrapper(socket);
+		try {
+			connection.createStreams();
+			outputStream = connection.getOutputStream();
+			Runnable runnable = new ChatRunnable<ServerChatUI>(ServerChatUI.this, connection);
+			Thread thread = new Thread(runnable);
+			thread.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	final void setFrame(JPanel pane) {
@@ -109,30 +119,56 @@ public class ServerChatUi extends JFrame implements Accessible {
 	private class WindowsController extends WindowAdapter {
 		@Override
 		public void windowClosing(WindowEvent e) {
-			
+
 			System.out.println("ServerUI Window Closing");
-			dispose();
-			System.exit(0);
+
+				try {
+					outputStream.writeObject(ChatProtocolConstants.DISPLACMENT+ChatProtocolConstants.CHAT_TERMINATOR
+							+ChatProtocolConstants.LINE_TERMINATOR);
+				} catch (IOException e1) {
+	
+					e1.printStackTrace();
+				} finally {
+
+				dispose();
+				System.out.println("Closing chat!");
+			}
+		 
+		 try {
+		 connection.closeConnection();
+		 } catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		 finally {
+			 dispose();
+			 System.out.println("Chat closed");
+		 }
+		}
+
+		public void WindowClosed() {
+
+			System.out.println("Server UI Closed");
 		}
 	}
 
 	private class Controller implements ActionListener {
 		@Override
-		public void actionPerformed(ActionEvent event) {
-
-			send();
+		public void actionPerformed(ActionEvent av) {
+			String event = av.getActionCommand();
+			if (event.equals("send"))
+				send();
 		}
 
 		private void send() {
 			String sendMessage = message.getText();
-			display.append(sendMessage + "\n");
-
-			/*
-			 * and then uses the outputStream to write the following string object:
-			 * ChatProtocolConstants.DISPLACMENT + sendMessage
-			 * +ChatProtocolConstants.LINE_TERMINATOR
-			 */
-
+			getDisplay().append(sendMessage + ChatProtocolConstants.LINE_TERMINATOR);
+			try {
+				outputStream.writeObject(ChatProtocolConstants.DISPLACMENT + 
+						sendMessage + ChatProtocolConstants.LINE_TERMINATOR);
+			} catch (IOException e) {
+				getDisplay().setText(e.toString());
+			}
 		}
 	}
 

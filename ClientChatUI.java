@@ -120,7 +120,7 @@ public class ClientChatUI extends JFrame implements Accessible {
 				return;
 			
 			if (event.equals("send")) {
-				//send();
+				send();
 			}
 				
 		}
@@ -154,18 +154,18 @@ public class ClientChatUI extends JFrame implements Accessible {
 			
 			return false;
 		}
-	/*	
+		
 		private void send() {
 			String sendMessage = messageTextField.getText();
 			chatTextArea.append(sendMessage + ChatProtocolConstants.LINE_TERMINATOR);
 			try {
-				outputStream.writeObject(ChatProtocolConstants.DISPLACEMENT + 
+				outputStream.writeObject(ChatProtocolConstants.DISPLACMENT + 
 						sendMessage + ChatProtocolConstants.LINE_TERMINATOR);
 			} catch (IOException e) {
 				enableConnectButton();
 				chatTextArea.setText(e.toString());
 			}
-		}*/
+		}
 	}
 	
 	/**

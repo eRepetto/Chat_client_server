@@ -8,7 +8,16 @@ public class Client {
 	public static void main(String[] args) {
 
 		
-		ClientChatUI chatUi = new ClientChatUI("Exequiel's ClientChatUi");		
+		ClientChatUI chatUI = new ClientChatUI("Exequiel's ClientChatUi");		
+		
+		JFrame frame = new JFrame();
+		frame.setMinimumSize(new Dimension(588, 500));
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		frame.setContentPane(chatUI.getContentPane());
+		frame.setVisible(true);
+	
+		frame.setResizable(false);
 		
 	}
 }
