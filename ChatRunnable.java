@@ -7,17 +7,18 @@ import javax.swing.JTextArea;
 
 public class ChatRunnable <T extends JFrame & Accessible> implements Runnable {
 
-	final T ui;
-	final Socket socket;
-	final ObjectInputStream inputStream;
-	final ObjectOutputStream outputStream;
-	final JTextArea display;	
+	private final T ui;
+	private final Socket socket;
+	private final ObjectInputStream inputStream;
+	private final ObjectOutputStream outputStream;
+	private final JTextArea display;	
 	
 	public ChatRunnable (T ui, ConnectionWrapper connection){
 		
 		this.ui = ui;
+		this.display = ui.getDisplay();
 		this.socket = connection.getSocket();
-		this.inputStream = connection.getInputStream(); // i am not sure about this yet
+		this.inputStream = connection.getInputStream(); 
 		this.outputStream = connection.getOutputStream();
 	}
 	
