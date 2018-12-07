@@ -119,8 +119,10 @@ public class ClientChatUI extends JFrame implements Accessible {
 			else
 				return;
 			
-			if (event.equals("send"))
-				send();
+			if (event.equals("send")) {
+				//send();
+			}
+				
 		}
 		
 		private boolean connect(String host, int port) {
@@ -152,7 +154,7 @@ public class ClientChatUI extends JFrame implements Accessible {
 			
 			return false;
 		}
-		
+	/*	
 		private void send() {
 			String sendMessage = messageTextField.getText();
 			chatTextArea.append(sendMessage + ChatProtocolConstants.LINE_TERMINATOR);
@@ -163,7 +165,7 @@ public class ClientChatUI extends JFrame implements Accessible {
 				enableConnectButton();
 				chatTextArea.setText(e.toString());
 			}
-		}
+		}*/
 	}
 	
 	/**

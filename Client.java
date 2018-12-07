@@ -8,7 +8,7 @@ public class Client {
 	public static void main(String[] args) {
 
 		
-		ClientChatUi chatUi = new ClientChatUi("Exequiel's ClientChatUi");		
+		ClientChatUI chatUi = new ClientChatUI("Exequiel's ClientChatUi");		
 		
 	}
 }
