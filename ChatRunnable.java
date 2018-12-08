@@ -1,9 +1,11 @@
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
 
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
@@ -16,7 +18,7 @@ public class ChatRunnable<T extends JFrame & Accessible> implements Runnable {
 	private final ObjectOutputStream outputStream;
 	private final JTextArea display;
 
-	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, hh:mm a");
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd, hh:mm a");
 	LocalDateTime localTime;
 
 	public ChatRunnable(T ui, ConnectionWrapper connection) {
@@ -30,18 +32,16 @@ public class ChatRunnable<T extends JFrame & Accessible> implements Runnable {
 
 	@Override
 	public void run() {
-
 		String strin = "";
-
+		
 		while (true) {
 
 			if (!socket.isClosed())
-				/* not sure about this try-catch but got ride of error */
 				try {
 					strin = (String) inputStream.readObject();
 				} catch (ClassNotFoundException | IOException e) {
-					e.printStackTrace();
-				}
+					break;
+				} 
 			else
 				break;
 
@@ -66,18 +66,18 @@ public class ChatRunnable<T extends JFrame & Accessible> implements Runnable {
 						ChatProtocolConstants.LINE_TERMINATOR + strin;
 				display.append(append);
 			}
+		
+		}
+		if (!socket.isClosed()) {
+			try {
+				outputStream.writeObject(
+						ChatProtocolConstants.DISPLACMENT + 
+						ChatProtocolConstants.CHAT_TERMINATOR + 
+						ChatProtocolConstants.LINE_TERMINATOR);
+			} catch (IOException e) {
 
-			if (!socket.isClosed())
-				/*not sure about this*/
-				try {
-					outputStream.writeObject(
-							ChatProtocolConstants.DISPLACMENT + 
-							ChatProtocolConstants.CHAT_TERMINATOR + 
-							ChatProtocolConstants.LINE_TERMINATOR);
-				} catch (IOException e) {
-
-					e.printStackTrace();
-				}
+				e.printStackTrace();
+			}
 		}
 		ui.closeChat();
 	}

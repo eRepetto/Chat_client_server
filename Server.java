@@ -30,7 +30,7 @@ public class Server {
 					socket.setSoLinger(true, 5);
 				if (!socket.getTcpNoDelay())
 					socket.setTcpNoDelay(true);
-				System.out.println("Connected to " + socket);
+				System.out.println("Connecting to a client " + socket);
 				friend++;
 				final String title = "YourName's Friend " + friend;
 				launchClient(socket, title);

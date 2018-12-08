@@ -29,9 +29,16 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+/**
+ * Builds the client chat user interface. 
+ * 
+ * @version 1.0
+ * @author Gabriel Richard
+ * @since 1.8.0_181-b13 
+ */
 public class ClientChatUI extends JFrame implements Accessible {
-	private static final long serialVersionUID = 1L;
-	
+	private static final long serialVersionUID = -1426403091025368131L;
+
 	/* Text field for MESSAGE panel */
 	private JTextField message;
 	
@@ -72,17 +79,13 @@ public class ClientChatUI extends JFrame implements Accessible {
 	
 	/**
 	 * Handles the closing of the window. 
-	 * 
-	 * @author Gabriel Richard
-	 * @version 1.0
-	 * @see CalculatorViewController
-	 * @since 1.8.0_181-b13 
 	 */
 	private class WindowController extends WindowAdapter {
 		
 		public void windowClosing(WindowEvent we) {
 			try {
 				outputStream.writeObject(ChatProtocolConstants.CHAT_TERMINATOR);
+				outputStream.flush();
 			} catch (Exception e) {
 				System.exit(0);
 			}
@@ -92,11 +95,6 @@ public class ClientChatUI extends JFrame implements Accessible {
 	
 	/**
 	 * Handles events sent by the connect and send buttons. 
-	 * 
-	 * @author Gabriel Richard
-	 * @version 1.0
-	 * @see CalculatorViewController
-	 * @since 1.8.0_181-b13 
 	 */
 	private class Controller implements ActionListener {
 		
@@ -111,18 +109,12 @@ public class ClientChatUI extends JFrame implements Accessible {
 			// Check if Connect button was pressed
 			if (event.equals("connect")) {
 				host = hostTextField.getText();
-				
-				System.out.println("Inside if (event.equals('connect')");
-				
 				port = Integer.valueOf((String) portComboBox.getSelectedItem());
-				connected = connect(host, port);
 				
-				System.out.println(connected); 
+				connected = connect(host, port);
 				
 				// Check if connection was successful
 				if (connected) {
-					System.out.println("Inside if (connected)");
-					
 					portConnectBtn.setEnabled(false);
 					portConnectBtn.setBackground(Color.BLUE);
 					sendButton.setEnabled(true);
@@ -167,8 +159,7 @@ public class ClientChatUI extends JFrame implements Accessible {
 					if (!socket.getTcpNoDelay())
 						socket.setTcpNoDelay(true);
 					
-					System.out.println("Inside connect()");
-					getDisplay().append(socket.toString());
+					getDisplay().append(socket.toString() + ChatProtocolConstants.LINE_TERMINATOR);
 					
 					ConnectionWrapper cw = new ConnectionWrapper(socket);
 					connection = cw;
@@ -186,12 +177,16 @@ public class ClientChatUI extends JFrame implements Accessible {
 			return false;
 		}
 		
+		/**
+		 * Send message through the output stream
+		 */
 		private void send() {
 			String sendMessage = message.getText();
 			getDisplay().append(sendMessage + ChatProtocolConstants.LINE_TERMINATOR);
 			try {
 				outputStream.writeObject(ChatProtocolConstants.DISPLACMENT + 
 						sendMessage + ChatProtocolConstants.LINE_TERMINATOR);
+				outputStream.flush();
 			} catch (IOException e) {
 				enableConnectButton();
 				getDisplay().setText(e.toString());
@@ -365,23 +360,34 @@ public class ClientChatUI extends JFrame implements Accessible {
 		addWindowListener(windowController);
 	}
 
+	/**
+	 * Return the client display
+	 * 
+	 * @return The client display
+	 */
 	@Override
 	public JTextArea getDisplay() {
 		return display;
 	}
 
+	/**
+	 * Close the connection and terminate the application
+	 */
 	@Override
 	public void closeChat() {
 		if (!socket.isClosed()) {
 			try {
-				socket.close();
+				connection.closeConnection();
+				enableConnectButton();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		enableConnectButton();
 	}
 	
+	/**
+	 * Enable the connect button and disable the send button.
+	 */
 	private void enableConnectButton() {
 		portConnectBtn.setEnabled(true);
 		portConnectBtn.setBackground(Color.RED);
