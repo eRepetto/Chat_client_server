@@ -83,7 +83,7 @@ public class ClientChatUI extends JFrame implements Accessible {
 		public void windowClosing(WindowEvent we) {
 			try {
 				outputStream.writeObject(ChatProtocolConstants.CHAT_TERMINATOR);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				System.exit(0);
 			}
 			System.exit(0);
@@ -111,11 +111,18 @@ public class ClientChatUI extends JFrame implements Accessible {
 			// Check if Connect button was pressed
 			if (event.equals("connect")) {
 				host = hostTextField.getText();
-			
-				port = (Integer) portComboBox.getSelectedItem();
+				
+				System.out.println("Inside if (event.equals('connect')");
+				
+				port = Integer.valueOf((String) portComboBox.getSelectedItem());
 				connected = connect(host, port);
+				
+				System.out.println(connected); 
+				
 				// Check if connection was successful
 				if (connected) {
+					System.out.println("Inside if (connected)");
+					
 					portConnectBtn.setEnabled(false);
 					portConnectBtn.setBackground(Color.BLUE);
 					sendButton.setEnabled(true);
@@ -152,7 +159,7 @@ public class ClientChatUI extends JFrame implements Accessible {
 			try {
 				s.connect(new InetSocketAddress(InetAddress.getByName(host), port), 10000);
 				
-				if (socket != null) {
+				if (s.isConnected()) {
 					socket = s;
 					
 					if (socket.getSoLinger() != -1)
@@ -160,8 +167,11 @@ public class ClientChatUI extends JFrame implements Accessible {
 					if (!socket.getTcpNoDelay())
 						socket.setTcpNoDelay(true);
 					
+					System.out.println("Inside connect()");
 					getDisplay().append(socket.toString());
-					connection = new ConnectionWrapper(socket);
+					
+					ConnectionWrapper cw = new ConnectionWrapper(socket);
+					connection = cw;
 					connection.createStreams();
 					outputStream = connection.getOutputStream();
 					

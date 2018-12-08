@@ -10,11 +10,12 @@ import javax.swing.JFrame;
 
 public class Server {
 
-	private static ServerSocket server;
+	//private static ServerSocket server;
 
 	public static void main(String[] args) {
 		int friend = 0;
 		int port = 65535;
+		ServerSocket server;
 		
 		if(args.length != 0)
 			port = Integer.parseInt(args[0]);	
@@ -29,7 +30,7 @@ public class Server {
 					socket.setSoLinger(true, 5);
 				if (!socket.getTcpNoDelay())
 					socket.setTcpNoDelay(true);
-				System.out.println(socket);
+				System.out.println("Connected to " + socket);
 				friend++;
 				final String title = "YourName's Friend " + friend;
 				launchClient(socket, title);

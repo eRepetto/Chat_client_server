@@ -103,7 +103,7 @@ public class ServerChatUI extends JFrame implements Accessible {
 			thread.start();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		} 
 	}
 
 	final void setFrame(JPanel pane) {

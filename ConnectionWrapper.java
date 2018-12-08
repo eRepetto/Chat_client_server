@@ -25,18 +25,21 @@ public class ConnectionWrapper {
 	}
 	
 	public ObjectInputStream createObjectIStreams() throws IOException {
-		this.inputStream = (ObjectInputStream) socket.getInputStream();
-		return this.inputStream;
+		ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+		inputStream = new ObjectInputStream(ois);
+		return inputStream;
 	}
 	
 	public ObjectOutputStream createObjectOStreams() throws IOException {
-		this.outputStream = (ObjectOutputStream) socket.getOutputStream();
-		return this.outputStream;
+		ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+		outputStream = new ObjectOutputStream(oos);
+		outputStream.flush();
+		return outputStream;
 	}
 	
 	public void createStreams() throws IOException {
-		createObjectIStreams();
 		createObjectOStreams();
+		createObjectIStreams();
 	}
 	
 	public void closeConnection() throws IOException {

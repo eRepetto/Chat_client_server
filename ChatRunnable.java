@@ -40,7 +40,6 @@ public class ChatRunnable<T extends JFrame & Accessible> implements Runnable {
 				try {
 					strin = (String) inputStream.readObject();
 				} catch (ClassNotFoundException | IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			else
